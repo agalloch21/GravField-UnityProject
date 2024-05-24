@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer
             || Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            
+
         }
         else
         {
@@ -97,8 +97,8 @@ public class GameManager : MonoBehaviour
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer
             || Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            if(RoleManager.Role == RoleManager.PlayerRole.Undefined)
-                JoinAsServer();            
+            if (RoleManager.Role == RoleManager.PlayerRole.Undefined)
+                JoinAsServer();
         }
     }
 
@@ -133,11 +133,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void JoinAsPerformer(string password="")
+    public void JoinAsPerformer(string password = "")
     {
         Debug.Log("Join As Performer.");
 
-        if(password == PerformerPassword)
+        if (password == PerformerPassword)
         {
             ConnectionManager.StartClient(callback: OnReceiveResult_JoinAsPerformer);
 
@@ -188,11 +188,6 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Join As Server.");
 
-        if (isSoloMode)
-        {
-            EnterSoloMode();
-        }
-
         connectionManager.StartServer(callback: OnReceiveResult_JoinAsServer);
     }
 
@@ -208,6 +203,11 @@ public class GameManager : MonoBehaviour
 
             //StartRelocalization();
             UIController.GoIntoGame(); // No need to relocalize as server
+
+            if (isSoloMode)
+            {
+                EnterSoloMode();
+            }
         }
         else
         {
@@ -326,7 +326,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    
+
 
     void InitializeReferences()
     {
@@ -336,7 +336,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("No HoloKitCameraManager Found.");
         }
-        
+
         audioProcessor = FindObjectOfType<AudioProcessor>();
         if (audioProcessor == null)
         {
@@ -373,11 +373,11 @@ public class GameManager : MonoBehaviour
             Debug.LogError("No PerformerGroup Found.");
         }
 
-        if(performerGroup!= null)
+        if (performerGroup != null)
         {
             Transform performer_root = performerGroup.transform;
             performerList = new List<Performer>();
-            for(int i=0; i< performer_root.childCount; i++)
+            for (int i = 0; i < performer_root.childCount; i++)
             {
                 performerList.Add(performer_root.GetChild(i).GetComponent<Performer>());
             }
