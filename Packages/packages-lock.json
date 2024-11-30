@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.community.netcode.transport.multipeer-connectivity": {
-      "version": "https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.multipeer-connectivity",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "87ab0c982c7f1fb87a0a8a131fc55a2577957edf"
-    },
     "com.immersal.core": {
       "version": "https://github.com/immersal/imdk-unity.git",
       "depth": 0,
