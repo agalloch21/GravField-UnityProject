@@ -115,7 +115,33 @@ public class EffectManager : NetworkBehaviour
 #endregion
 
 
-    public void ChangeEffectModeTo(float effect_index)
+    public void ChangeToPreviousEffect_UI()
+    {
+        if (IsServer == false)
+            return;
+        int index = (int)effectMode.Value - 1;
+        if (index < 0) index = 2;
+        ChangeEffect_UI(index);
+    }
+
+    public void ChangeToNextEffect_UI()
+    {
+        if (IsServer == false)
+            return;
+        int index = (int)effectMode.Value + 1;
+        if (index > 2) index = 0;
+        ChangeEffect_UI(index);
+    }
+
+    public void ChangeEffect_UI(int index)
+    {
+        if (IsServer == false)
+            return;
+
+        effectMode.Value = index;
+    }
+
+    void ChangeEffectModeTo(float effect_index)
     {
         Debug.Log("ChangeEffectModeTo: " + effect_index);
         int effect_mode = Mathf.RoundToInt(effect_index);

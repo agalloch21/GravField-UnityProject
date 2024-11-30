@@ -144,6 +144,25 @@ public class PlayerManager : NetworkBehaviour
 
         RefreshPlayerCount();
     }
+
+    void EnterSinglePlayerMode()
+    {
+        performerList[0].isPerforming.Value = true;
+        performerList[0].clientID.Value = (ulong)0;
+
+        ApplyPerformer(null);
+    }
+
+    void ExitSinglePlayerMode()
+    {
+        for(int i = 0; i < performerList.Count; i++)
+        {
+            performerList[i].isPerforming.Value = false;
+            performerList[i].clientID.Value = 0;
+
+            OnStopPerformingEvent?.Invoke(i, (ulong)i);
+        }
+    }
     #endregion
 
     void OnStartGame(PlayerRole player_role)
@@ -154,6 +173,11 @@ public class PlayerManager : NetworkBehaviour
         {
             EnterSoloMode();
         }
+
+        if(player_role == PlayerRole.SinglePlayer)
+        {
+            EnterSinglePlayerMode();
+        }
     }
 
     void OnStopGame(PlayerRole player_role)
@@ -163,6 +187,11 @@ public class PlayerManager : NetworkBehaviour
         if (player_role == PlayerRole.Server && GameManager.Instance.IsSoloMode)
         {
             StopSoloMode();
+        }
+
+        if (player_role == PlayerRole.SinglePlayer)
+        {
+            ExitSinglePlayerMode();
         }
     }
 

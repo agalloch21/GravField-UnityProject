@@ -24,9 +24,11 @@ public class UIController : MonoBehaviour
     HoloKitCameraManager holoKitManager;
 #endif
 
+    EffectManager effectManager;
+
     // Pages
     Transform pageHome;
-    Transform pageMore;
+    //Transform pageMore;
     Transform pageRelocalization;
     Transform pagePassword;
     Transform pageSettings;
@@ -55,7 +57,8 @@ public class UIController : MonoBehaviour
         Undefined,
         Performer,
         Server,
-        Commander
+        Commander,
+        SinglePlayer
     }
     ApplyingRole applyingRole = ApplyingRole.Undefined;
 
@@ -70,10 +73,15 @@ public class UIController : MonoBehaviour
             Debug.LogError($"[{this.GetType()}] Can't find HoloKitCameraManager.");
         }
 #endif
+        effectManager = FindFirstObjectByType<EffectManager>();
+        if (effectManager == null)
+        {
+            Debug.LogError($"[{this.GetType()}] Can't find EffectManager.");
+        }
 
         // Pages
         pageHome = FindTransformAndRegister("Page_Home");
-        pageMore = FindTransformAndRegister("Page_More");
+        //pageMore = FindTransformAndRegister("Page_More");
         pagePassword = FindTransformAndRegister("Page_Password");
         pageSettings = FindTransformAndRegister("Page_Settings");
         pageWaiting = FindTransformAndRegister("Page_Waiting");
@@ -93,26 +101,28 @@ public class UIController : MonoBehaviour
     void Start()
     {
         FindButtonAndBind("Page_Home/Button_Start", OnClickStart);
+        FindButtonAndBind("Page_Home/Button_SinglePlayer", OnClickSinglePlayer);
         FindButtonAndBind("Page_Home/Button_Performer", OnClickPerformer);
-        FindButtonAndBind("Page_Home/Button_More", () => { GotoPage("Page_More"); });
+        //FindButtonAndBind("Page_Home/Button_More", () => { GotoPage("Page_More"); });
+        FindButtonAndBind("Page_Home/Button_Server", OnClickServer);
+        FindButtonAndBind("Page_Home/Button_Settings", OnClickSettings);
 
-        
-        FindButtonAndBind("Page_More/Button_Server", OnClickServer);
-        FindButtonAndBind("Page_More/Button_Commander", OnClickCommander);
-        FindButtonAndBind("Page_More/Button_Settings", OnClickSettings);
-        FindButtonAndBind("Page_More/Button_Return", GoBackToHomePage);
+        //FindButtonAndBind("Page_More/Button_Server", OnClickServer);
+        //FindButtonAndBind("Page_More/Button_Commander", OnClickCommander);
+        //FindButtonAndBind("Page_More/Button_Settings", OnClickSettings);
+        //FindButtonAndBind("Page_More/Button_Return", GoBackToHomePage);
 
 
         FindButtonAndBind("Page_Password/Button_Enter", () => { OnConfirmPassword(transform.Find("Page_Password/InputField_Password")); });
-        FindButtonAndBind("Page_Password/Button_Close", ()=> { GotoPage("Page_More"); });
+        FindButtonAndBind("Page_Password/Button_Close", ()=> { GotoPage("Page_Home"); });
 
         FindButtonAndBind("Page_Settings/Button_Enter", () => { OnConfirmServerIP(transform.Find("Page_Settings/InputField_ServerIP")); });
-        FindButtonAndBind("Page_Settings/Button_Close", () => { GotoPage("Page_More"); });
+        FindButtonAndBind("Page_Settings/Button_Close", () => { GotoPage("Page_Home"); });
 
         FindButtonAndBind("Page_Relocalization/Button_Close", () => { CloseRelocalizationPage(); });
 
-        //FindButtonAndBind("Page_Game/Button_Left", () => { OnClickLeftArrow(); });
-        //FindButtonAndBind("Page_Game/Button_Right", () => { OnClickRightArrow(); });
+        FindButtonAndBind("Page_Game/Button_Left", () => { OnClickLeftArrow(); });
+        FindButtonAndBind("Page_Game/Button_Right", () => { OnClickRightArrow(); });
 
         FindButtonAndBind("Page_ExtraMenu/Button_Calibrate", () => { GotoRelocalizationPage(); });
         FindButtonAndBind("Page_ExtraMenu/Button_Exit", () => { RestartGame(); });
@@ -204,6 +214,11 @@ public class UIController : MonoBehaviour
     void OnClickStart()
     {
         JoinAsSpectator();
+    }
+
+    void OnClickSinglePlayer()
+    {
+        JoinAsSinglePlayer();
     }
 
     void OnClickPerformer()
@@ -322,6 +337,27 @@ public class UIController : MonoBehaviour
                 RegisterCallback();
 
                 GotoRelocalizationPage();
+            }
+            else
+            {
+                GotoWaitingPage(msg, 2, () =>
+                {
+                    GoBackToHomePage();
+                }); // display for 2s
+            }
+        });
+    }
+
+    void JoinAsSinglePlayer()
+    {
+        GotoWaitingPage("Starting game..");
+
+        GameManager.Instance.JoinAsHost((result, msg) => {
+            if (result == true)
+            {
+                RegisterCallback();
+
+                EnterGame();
             }
             else
             {
@@ -545,6 +581,9 @@ public class UIController : MonoBehaviour
     void EnterGame()
     {
         GotoPage(page_name: "Page_Game");
+
+        pageGame.Find("Button_Left").gameObject.SetActive(GameManager.Instance.PlayerRole == PlayerRole.SinglePlayer);
+        pageGame.Find("Button_Right").gameObject.SetActive(GameManager.Instance.PlayerRole == PlayerRole.SinglePlayer);
     }
 
     void RestartGame()
@@ -593,7 +632,17 @@ public class UIController : MonoBehaviour
     }
 #endregion
 
-#region Callbacks
+    void OnClickLeftArrow()
+    {
+        effectManager.ChangeToPreviousEffect_UI();
+    }
+
+    void OnClickRightArrow()
+    {
+        effectManager.ChangeToNextEffect_UI();
+    }
+
+    #region Callbacks
     void RegisterCallback()
     {
         GameManager.Instance.ConnectionManager.OnServerLostEvent.AddListener(OnServerLostCallback);

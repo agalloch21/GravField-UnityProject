@@ -160,12 +160,27 @@ public class GameManager : MonoBehaviour
         }));
     }
 
+    public void JoinAsHost(System.Action<bool, string> action)
+    {
+        Debug.Log("Join As Host.");
+
+        connectionManager.StartHost(new System.Action<bool, string>((result, msg) => {
+
+            if (result)
+            {
+                StartGame(PlayerRole.SinglePlayer);
+            }
+
+            action?.Invoke(result, msg);
+        }));
+    }
 
 
-#endregion
+
+    #endregion
 
 
-#region Connection Event Listener
+    #region Connection Event Listener
     void OnEnable()
     {
         ConnectionManager.OnClientJoinedEvent.AddListener(OnClientJoined);
