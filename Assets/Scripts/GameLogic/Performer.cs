@@ -18,9 +18,9 @@ public class Performer : NetworkBehaviour
 
     public NetworkVariable<bool> isPerforming;
 
-    public NetworkVariable<float> soundVolume;
+    public NetworkVariable<float> soundVolume = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    public NetworkVariable<float> soundPitch;
+    public NetworkVariable<float> soundPitch = new NetworkVariable<float>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     int performerIndex = 0;
 
@@ -88,8 +88,8 @@ public class Performer : NetworkBehaviour
 
         if(IsOwner)
         {
-            //soundVolume.Value = GameManager.Instance.AudioProcessor.AudioVolume;
-            //soundPitch.Value = GameManager.Instance.AudioProcessor.AudioPitch;
+            soundVolume.Value = GameManager.Instance.AudioProcessor.AudioVolume;
+            soundPitch.Value = GameManager.Instance.AudioProcessor.AudioPitch;
         }
     }
 

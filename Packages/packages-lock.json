@@ -451,6 +451,16 @@
       "dependencies": {},
       "url": "https://registry.npmjs.com"
     },
+    "org.realitydeslab.netcode.transport.multipeer-connectivity": {
+      "version": "https://github.com/realitydeslab/netcode-transport-multipeer-connectivity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.netcode.gameobjects": "2.0.0",
+        "com.unity.transport": "2.3.0"
+      },
+      "hash": "e89723025a4f47fb2d4079f59fdfb071ce6635e4"
+    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,
