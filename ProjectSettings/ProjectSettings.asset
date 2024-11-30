@@ -147,6 +147,8 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 11400000, guid: 8b50767f4cc159e4f8f13f48aa7ab6f1, type: 2}
+  - {fileID: 1851037931358117664, guid: 5066d500c9e54c64aa10117cec1ae4bf, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -169,6 +171,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.immersal.sdk.samples
+    Standalone: org.realitydeslab.gravfield
     iPhone: org.realitydeslab.gravfield
   buildNumber:
     Bratwurst: 0
@@ -293,7 +296,14 @@ PlayerSettings:
   AndroidAppBundleSizeToValidate: 150
   AndroidReportGooglePlayAppDependencies: 1
   androidSymbolsSizeThreshold: 800
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 8266ba7e978314138b7126abde5383e2, type: 3}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: Android
     m_Icons:
@@ -876,6 +886,7 @@ PlayerSettings:
     iPhone: 1
   scriptingBackend:
     Android: 1
+    Standalone: 1
   il2cppCompilerConfiguration: {}
   il2cppCodeGeneration: {}
   il2cppStacktraceInformation: {}

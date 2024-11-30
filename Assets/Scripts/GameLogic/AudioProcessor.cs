@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+#if UNITY_IOS
 using HoloKit.iOS;
+#endif
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.VFX;
@@ -31,7 +33,9 @@ public class AudioProcessor : MonoBehaviour
     public float AudioPitch { get { return audioPitch; } }
 
     [Header("Holokit Recorder")]
+#if UNITY_IOS
     public HoloKitVideoRecorder videoRecorder;
+#endif
     public UnityEngine.UI.Text recordingText;
 
 
@@ -100,7 +104,7 @@ public class AudioProcessor : MonoBehaviour
         //GameManager.Instance.SetInfo("FinalVolume", audioVolume.ToString("0.000"));
     }
 
-    #region Methon One
+#region Methon One
     int _sampleWindow = 32;
     float LevelMax()
     {
@@ -121,9 +125,9 @@ public class AudioProcessor : MonoBehaviour
         }
         return levelMax;
     }
-    #endregion
+#endregion
 
-    #region Method Two
+#region Method Two
     float RmsValue;
     float DbValue;
     float PitchValue;
@@ -183,10 +187,10 @@ public class AudioProcessor : MonoBehaviour
         EnsureBufferCapacity(ref bufferFFT, listFFT.Count, BUFFER_STRIDE);
         bufferFFT.SetData(listFFT);
     }
-    #endregion
+#endregion
 
 
-    #region Micorphone 
+#region Micorphone 
     void StartMicrophone()
     {
         if (isInitialized)
@@ -294,6 +298,7 @@ public class AudioProcessor : MonoBehaviour
 
     public void ToggleRecording()
     {
+#if UNITY_IOS
         if (videoRecorder.IsRecording == false)
         {
             //videoRecorder._microphoneAudioSource = microphoneAudioSource;
@@ -328,10 +333,11 @@ public class AudioProcessor : MonoBehaviour
         }
         videoRecorder.ToggleRecording();
         recordingText.text = videoRecorder.IsRecording ? "Stop Recording" : "Start Recording";
+#endif
     }
-    #endregion
+#endregion
 
-    #region Buffer
+#region Buffer
     private void EnsureBufferCapacity(ref GraphicsBuffer buffer, int capacity, int stride)
     {
         // Reallocate new buffer only when null or capacity is not sufficient
@@ -356,5 +362,5 @@ public class AudioProcessor : MonoBehaviour
         buffer?.Release();
         buffer = null;
     }
-    #endregion
+#endregion
 }

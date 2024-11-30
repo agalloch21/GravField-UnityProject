@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+#if UNITY_IOS
 using HoloKit;
+#endif
 
 public class CameraMovement : MonoBehaviour
 {
+#if UNITY_IOS
     public HoloKitCameraManager holokitCameraManager;
+#endif
     public CinemachineBrain cinemachineCameraManager;
 
     public CinemachineMixingCamera mixingCamera;
@@ -97,7 +101,9 @@ public class CameraMovement : MonoBehaviour
 
     void StartCinemachineMode()
     {
+        #if UNITY_IOS
         holokitCameraManager.enabled = false;
+#endif
         cinemachineCameraManager.enabled = true;
 
         mixingCamera.enabled = true;
@@ -110,7 +116,9 @@ public class CameraMovement : MonoBehaviour
 
     void StopCinemachineMode()
     {
+#if UNITY_IOS
         holokitCameraManager.enabled = true;
+#endif
         cinemachineCameraManager.enabled = false;
 
         mixingCamera.enabled = false;

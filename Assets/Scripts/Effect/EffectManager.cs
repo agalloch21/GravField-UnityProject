@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_IOS
 using HoloKit;
+#endif
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -27,16 +29,20 @@ public class EffectManager : NetworkBehaviour
     [SerializeField]
     Volume volume;
     Bloom bloom;
-    
+
+#if UNITY_IOS
     HoloKitCameraManager holoKitCameraManager;
+#endif
 
     void Awake()
     {
+#if UNITY_IOS
         holoKitCameraManager = FindFirstObjectByType<HoloKitCameraManager>();
         if (holoKitCameraManager == null)
         {
             Debug.LogError($"[{this.GetType()}] Can't find HoloKitCameraManager.");
         }
+#endif
     }
 
     void OnEnable()
@@ -68,7 +74,7 @@ public class EffectManager : NetworkBehaviour
         }
     }
 
-    #region Start / Stop game 
+#region Start / Stop game 
     void OnStartGame(PlayerRole player_role)
     {
         // Register NetworkVariable functions
@@ -83,27 +89,30 @@ public class EffectManager : NetworkBehaviour
         // Unregister NetworkVariable functions
         UnregisterNetworkVariableCallback();
     }
-    #endregion
+#endregion
 
-    #region NetworkVariable 
+#region NetworkVariable 
     void RegisterNetworkVariableCallback()
     {
         effectMode.OnValueChanged += OnEffectModeChange;
-
+#if UNITY_IOS
         holoKitCameraManager.OnScreenRenderModeChanged += OnScreenRenderModeChanged;
+#endif
     }
 
     void UnregisterNetworkVariableCallback()
     {
         effectMode.OnValueChanged -= OnEffectModeChange;
 
+#if UNITY_IOS
         holoKitCameraManager.OnScreenRenderModeChanged -= OnScreenRenderModeChanged;
+#endif
     }
     void OnEffectModeChange(float prev, float cur)
     {
         ChangeEffectModeTo(cur);
     }
-    #endregion
+#endregion
 
 
     void ChangeEffectModeTo(float effect_index)
@@ -117,7 +126,7 @@ public class EffectManager : NetworkBehaviour
 
         effectMagneticField.SetEffectState(effect_mode == 2);
     }
-
+#if UNITY_IOS
     void OnScreenRenderModeChanged(HoloKit.ScreenRenderMode mode)
     {
         VolumeProfile profile = volume.sharedProfile;
@@ -138,4 +147,5 @@ public class EffectManager : NetworkBehaviour
         }
 #endif
     }
+#endif
 }

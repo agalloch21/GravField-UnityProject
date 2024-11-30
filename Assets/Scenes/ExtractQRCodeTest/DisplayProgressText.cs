@@ -6,6 +6,7 @@ using TMPro;
 
 public class DisplayProgressText : MonoBehaviour
 {
+#if UNITY_IOS
     [SerializeField] ImageTrackingStablizer relocalizationStablizer;
     [SerializeField] TextMeshProUGUI progressText;
     void Update()
@@ -15,4 +16,5 @@ public class DisplayProgressText : MonoBehaviour
         else
             progressText.text = "Stopped";
     }
+#endif
 }

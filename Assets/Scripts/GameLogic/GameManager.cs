@@ -7,7 +7,9 @@ using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System;
+#if UNITY_IOS
 using HoloKit;
+#endif
 using UnityEngine.Events;
 
 public enum PlayerRole
@@ -33,18 +35,20 @@ public class GameManager : MonoBehaviour
 
     bool showPerformerAxis = false;
 
+#if UNITY_IOS
     HoloKitCameraManager holoKitCameraManager;
     public HoloKitCameraManager HolokitCameraManager { get => holoKitCameraManager; }
+#endif
 
     private AudioProcessor audioProcessor;
     public AudioProcessor AudioProcessor { get => audioProcessor; }
 
     private NetcodeConnectionManager connectionManager;
     public NetcodeConnectionManager ConnectionManager { get => connectionManager; }
-
+#if UNITY_IOS
     private ImageTrackingStablizer relocalizationStablizer;
     public ImageTrackingStablizer RelocalizationStablizer { get => relocalizationStablizer; }
-
+#endif
     private MiddlewareManager middlewareManager;
     public MiddlewareManager MiddlewareManager { get => middlewareManager; }
 
@@ -67,7 +71,7 @@ public class GameManager : MonoBehaviour
 
     bool isInitialzed = false;
 
-    #region Join As Specific Role
+#region Join As Specific Role
     public void JoinAsSpectator(System.Action<bool, string> action)
     {
         Debug.Log("Join As Spectator.");
@@ -158,10 +162,10 @@ public class GameManager : MonoBehaviour
 
 
 
-    #endregion
+#endregion
 
 
-    #region Connection Event Listener
+#region Connection Event Listener
     void OnEnable()
     {
         ConnectionManager.OnClientJoinedEvent.AddListener(OnClientJoined);
@@ -189,13 +193,13 @@ public class GameManager : MonoBehaviour
     {
         //RestartGame();
     }
-    #endregion
+#endregion
 
 
-    #region Relocalization
+#region Relocalization
     public void StartRelocalization(System.Action action)
     {
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_IOS
         UnityAction<Vector3, Quaternion> handler = null;
         handler = (Vector3 position, Quaternion rotation) =>
         {
@@ -216,7 +220,7 @@ public class GameManager : MonoBehaviour
 
     public void StopRelocalization()
     {
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_IOS
         relocalizationStablizer.OnTrackedImagePoseStablized.RemoveAllListeners() ;
 
         relocalizationStablizer.IsRelocalizing = false;
@@ -244,18 +248,21 @@ public class GameManager : MonoBehaviour
 
     public float GetRelocalizationProgress()
     {
+#if UNITY_IOS
         if (relocalizationStablizer.IsRelocalizing)
             return relocalizationStablizer.Progress;
         else
+#endif
+
             return 0;
     }
 
-    #endregion
+#endregion
 
 
 
 
-    #region Game control
+#region Game control
     public void StartGame(PlayerRole player_role)
     {
         StartCoroutine(WaitForNetworkObjectSpawnedCoroutine(3, (result, msg) => {
@@ -369,9 +376,9 @@ public class GameManager : MonoBehaviour
     {
 
     }
-    #endregion
+#endregion
 
-    #region UI Related Functions
+#region UI Related Functions
 
 
 
@@ -380,10 +387,10 @@ public class GameManager : MonoBehaviour
     {
         uiController.ShowWarningText(msg);
     }
-    #endregion
+#endregion
 
 
-    #region Helping Functions
+#region Helping Functions
     public void TogglePerformerAxis()
     {
         SetPerformerAxisState(!showPerformerAxis);
@@ -399,18 +406,20 @@ public class GameManager : MonoBehaviour
             renderer.enabled = state;
         }
     }
-    #endregion
+#endregion
 
     
 
     void InitializeReferences()
     {
         // Initialize References
+#if UNITY_IOS
         holoKitCameraManager = FindFirstObjectByType<HoloKitCameraManager>();
         if (holoKitCameraManager == null)
         {
             Debug.LogError("No HoloKitCameraManager Found.");
         }
+#endif
         
         audioProcessor = FindFirstObjectByType<AudioProcessor>();
         if (audioProcessor == null)
@@ -423,12 +432,13 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("No NetcodeConnectionManager Found.");
         }
-
+#if UNITY_IOS
         relocalizationStablizer = FindFirstObjectByType<ImageTrackingStablizer>();
         if (relocalizationStablizer == null)
         {
             Debug.LogError("No ImageTrackingStablizer Found.");
         }
+#endif
 
         middlewareManager = FindFirstObjectByType<MiddlewareManager>();
         if (middlewareManager == null)
@@ -455,7 +465,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #region Instance
+#region Instance
     private static GameManager _Instance;
 
     public static GameManager Instance
@@ -493,9 +503,9 @@ public class GameManager : MonoBehaviour
     {
         //_Instance = null;
     }
-    #endregion
+#endregion
 
-    #region ARGS
+#region ARGS
 
     private string GetModeFromCommandLine()
     {
@@ -526,5 +536,5 @@ public class GameManager : MonoBehaviour
         }
         return argDictionary;
     }
-    #endregion
+#endregion
 }

@@ -5,7 +5,9 @@ using UnityEngine.UI;
 using TMPro;
 
 using UnityEngine.Events;
+#if UNITY_IOS
 using HoloKit;
+#endif
 
 public class UIController : MonoBehaviour
 {
@@ -18,7 +20,9 @@ public class UIController : MonoBehaviour
     [SerializeField]
     string commanderPassword = "333";
 
+    #if UNITY_IOS
     HoloKitCameraManager holoKitManager;
+#endif
 
     // Pages
     Transform pageHome;
@@ -59,11 +63,13 @@ public class UIController : MonoBehaviour
 
     void Awake()
     {
+        #if UNITY_IOS
         holoKitManager = FindFirstObjectByType<HoloKitCameraManager>();
         if (holoKitManager == null)
         {
             Debug.LogError($"[{this.GetType()}] Can't find HoloKitCameraManager.");
         }
+#endif
 
         // Pages
         pageHome = FindTransformAndRegister("Page_Home");
@@ -172,7 +178,11 @@ public class UIController : MonoBehaviour
             if (longPressedTime >= LongPressedTimeThreshold)
             {
                 // If it's in game mode and screen mode is mono
+#if UNITY_IOS
                 if (currentPage == pageGame && (holoKitManager != null && holoKitManager.ScreenRenderMode == HoloKit.ScreenRenderMode.Mono))
+#else
+                if (currentPage == pageGame)
+#endif
                 {
                     ShowExtraMenu();
                     longPressedTime = 0;
@@ -190,7 +200,7 @@ public class UIController : MonoBehaviour
     }
 
 
-    #region Click Listeners
+#region Click Listeners
     void OnClickStart()
     {
         JoinAsSpectator();
@@ -298,10 +308,10 @@ public class UIController : MonoBehaviour
             GotoPage("Page_JoinType");
         }
     }
-    #endregion
+#endregion
 
 
-    #region Join functions
+#region Join functions
     void JoinAsSpectator()
     {
         GotoWaitingPage("Connecting to server..");
@@ -400,10 +410,10 @@ public class UIController : MonoBehaviour
             }
         });
     }
-    #endregion
+#endregion
 
 
-    #region UI controlness
+#region UI controlness
     void GotoPage(string page_name)
     {
         Debug.Log($"[{this.GetType()}] Goto Page: {page_name}");
@@ -456,9 +466,9 @@ public class UIController : MonoBehaviour
             element.gameObject.SetActive(match);
         }
     }
-    #endregion
+#endregion
 
-    #region UI navigation
+#region UI navigation
     void GotoPasswordPage(ApplyingRole role)
     {
         applyingRole = role;
@@ -581,9 +591,9 @@ public class UIController : MonoBehaviour
 
         HideExtraMenu();
     }
-    #endregion
+#endregion
 
-    #region Callbacks
+#region Callbacks
     void RegisterCallback()
     {
         GameManager.Instance.ConnectionManager.OnServerLostEvent.AddListener(OnServerLostCallback);
@@ -598,7 +608,7 @@ public class UIController : MonoBehaviour
     {
         RestartGame();
     }
-    #endregion
+#endregion
 
     IEnumerator JoinAsServerAutomatically()
     {
