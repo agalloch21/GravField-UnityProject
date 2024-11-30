@@ -115,7 +115,7 @@ public class EffectManager : NetworkBehaviour
 #endregion
 
 
-    void ChangeEffectModeTo(float effect_index)
+    public void ChangeEffectModeTo(float effect_index)
     {
         Debug.Log("ChangeEffectModeTo: " + effect_index);
         int effect_mode = Mathf.RoundToInt(effect_index);
