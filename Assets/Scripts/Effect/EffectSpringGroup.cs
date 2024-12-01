@@ -22,8 +22,10 @@ public class EffectSpringGroup : MonoBehaviour
         public float waveLengthScaler;        
         public float shakeSpeedScaler;
         public float shakeStrengthScaler;
+        public float waveWidthScaler;
 
-        public LineRenderer lineRenderer;
+        //public LineRenderer lineRenderer;
+        public MeshRenderer meshRenderer;
         public Material mat;
     }
     List<WaveLine> wavelineList = new List<WaveLine>();
@@ -34,6 +36,7 @@ public class EffectSpringGroup : MonoBehaviour
     public Vector2 wavelengthScalerRange;
     public Vector2 shakeSpeedRange;
     public Vector2 shakeStrengthRange;
+    public Vector2 waveWidthRange;
 
     float baseRotateAngle = 0;
     public Vector2 rotateSpeedRange;
@@ -66,13 +69,15 @@ public class EffectSpringGroup : MonoBehaviour
     {
         WaveLine waveline = new WaveLine();
 
-        waveline.waveLengthScaler = 1;// Random.Range(0.5f, 2f);
+        waveline.waveLengthScaler = Random.Range(0.5f, 2f);
         waveline.shakeSinValue = 0;
-        waveline.shakeSpeedScaler = 1;// Random.Range(0.7f, 1.4f);
-        waveline.shakeStrengthScaler = 1;// Random.Range(0.7f, 1.4f);
+        waveline.shakeSpeedScaler = Random.Range(0.7f, 1.4f);
+        waveline.shakeStrengthScaler = Random.Range(0.7f, 1.4f);
+        waveline.waveWidthScaler = Random.Range(0.7f, 1.4f);
 
-        waveline.lineRenderer = trans.GetComponent<LineRenderer>();
-        waveline.mat = trans.GetComponent<MeshRenderer>().material;
+        //waveline.lineRenderer = trans.GetComponent<LineRenderer>();
+        waveline.meshRenderer = trans.GetComponent<MeshRenderer>();
+        waveline.mat = waveline.meshRenderer.material;
 
         return waveline;
     }
@@ -102,7 +107,8 @@ public class EffectSpringGroup : MonoBehaviour
         //}
         foreach(var wave in wavelineList)
         {
-            wave.lineRenderer.enabled = state;
+            //wave.lineRenderer.enabled = state;
+            wave.meshRenderer.enabled = state;
         }
     }
 
@@ -117,7 +123,8 @@ public class EffectSpringGroup : MonoBehaviour
 
     void UpdateParameter()
     {
-        AudioProcessor audioProcessor = GameManager.Instance.AudioProcessor;
+        float audioVolume = (performerStart.soundVolume.Value + performerEnd.soundVolume.Value) * 0.5f;
+        float audioPitch = (performerStart.soundPitch.Value + performerEnd.soundPitch.Value) * 0.5f;
 
         Vector3 startPos = performerStart.transform.TransformPoint(springOffset);
         Vector3 endPos = performerEnd.transform.TransformPoint(springOffset);
@@ -131,7 +138,7 @@ public class EffectSpringGroup : MonoBehaviour
         Vector3 base_angles = base_rotation.eulerAngles;
 
         // rotate all lines
-        float rotateSpeed = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, rotateSpeedRange.x, rotateSpeedRange.y);
+        float rotateSpeed = Utilities.Remap(audioVolume, 0, 1, rotateSpeedRange.x, rotateSpeedRange.y);
         baseRotateAngle += Time.deltaTime * rotateSpeed;
 
         // wave length. we take wave length as 1, then we can use percentage as X
@@ -144,14 +151,19 @@ public class EffectSpringGroup : MonoBehaviour
             WaveLine waveline = wavelineList[m];
 
             // shake sin value
-            float shake_speed = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, shakeSpeedRange.x, shakeSpeedRange.y) * waveline.shakeSpeedScaler;
+            float shake_speed = Utilities.Remap(audioVolume, 0, 1, shakeSpeedRange.x, shakeSpeedRange.y) * waveline.shakeSpeedScaler;
             waveline.shakeSinValue += shake_speed * Time.deltaTime;
 
             // shake strength
-            float shake_strength = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, shakeStrengthRange.x, shakeStrengthRange.y) * waveline.shakeStrengthScaler;
+            float shake_strength = Utilities.Remap(audioVolume, 0, 1, shakeStrengthRange.x, shakeStrengthRange.y) *
+                Utilities.Remap(dis, 0, 5, 1, 0.1f, true) * waveline.shakeStrengthScaler;
 
             // wave length
-            float wavelength_scaler = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, wavelengthScalerRange.x, wavelengthScalerRange.y) * waveline.waveLengthScaler;
+            float wavelength_scaler = Utilities.Remap(audioVolume, 0, 1, wavelengthScalerRange.x, wavelengthScalerRange.y) * waveline.waveLengthScaler;
+
+            // wave line width
+            float width = Utilities.Remap(dis, 0, 5, waveWidthRange.x, waveWidthRange.y) * 
+                Utilities.Remap(audioVolume, 0, 1, 0.8f, 1.5f) * waveline.waveWidthScaler;
 
             // line rotation
             float radiate_angle = baseRotateAngle + (float)m / (float)wavelineList.Count * 360;
@@ -159,25 +171,26 @@ public class EffectSpringGroup : MonoBehaviour
             Vector3 line_normal = rotation * normal;
             Vector3 forward = Vector3.Cross(direction, line_normal);
 
-            for (int i = 0; i < pointCount; i++)
-            {
-                float per = (float)i / (float)(pointCount - 1);
-                Vector3 pos_in_line = Vector3.Lerp(startPos, endPos, per);
-                float disA = dis * per;
-                float disB = dis * (1 - per);
+            // the logic behind Shader Graph
+            //for (int i = 0; i < pointCount; i++)
+            //{
+            //    float per = (float)i / (float)(pointCount - 1);
+            //    Vector3 pos_in_line = Vector3.Lerp(startPos, endPos, per);
+            //    float disA = dis * per;
+            //    float disB = dis * (1 - per);
 
-                per = Utilities.Remap(per, 0f, 1f, 0.5f - wavelength_scaler * 0.5f, 0.5f + wavelength_scaler * 0.5f);
-                float amp = shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per - wavelineList[m].shakeSinValue))
-                    + shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per + wavelineList[m].shakeSinValue));
+            //    per = Utilities.Remap(per, 0f, 1f, 0.5f - wavelength_scaler * 0.5f, 0.5f + wavelength_scaler * 0.5f);
+            //    float amp = shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per - wavelineList[m].shakeSinValue))
+            //        + shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per + wavelineList[m].shakeSinValue));
 
-                Vector3 point_normal = line_normal;//Quaternion.Euler(per * 360f, 0, 0) * line_normal;
+            //    Vector3 point_normal = line_normal;//Quaternion.Euler(per * 360f, 0, 0) * line_normal;
 
-                pointList[i] = pos_in_line + point_normal * amp;
-            }
+            //    pointList[i] = pos_in_line + point_normal * amp;
+            //}
 
 
             // draw with line renderer
-            waveline.lineRenderer.SetPositions(pointList.ToArray());
+            //waveline.lineRenderer.SetPositions(pointList.ToArray());
 
             waveline.mat.SetVector("_StartPos", startPos);
             waveline.mat.SetVector("_EndPos", endPos);
@@ -186,6 +199,8 @@ public class EffectSpringGroup : MonoBehaviour
             waveline.mat.SetFloat("_ShakeSinValue", waveline.shakeSinValue);
             waveline.mat.SetVector("_Normal", line_normal);
             waveline.mat.SetVector("_Forward", forward);
+            waveline.mat.SetFloat("_Width", width);
+            waveline.mat.SetFloat("_Volume", audioVolume);
         }
     }
 

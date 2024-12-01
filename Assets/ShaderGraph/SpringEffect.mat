@@ -40,7 +40,15 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    m_Colors: []
+    - _ShakeSinValue: 0
+    - _ShakeStrength: 0
+    - _WaveLengthScaler: 0
+    - _Width: 0.02
+    m_Colors:
+    - _EndPos: {r: 0, g: 0, b: 0, a: 0}
+    - _Forward: {r: 0, g: 0, b: 0, a: 0}
+    - _Normal: {r: 0, g: 0, b: 0, a: 0}
+    - _StartPos: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &5132450258797387366

@@ -88,7 +88,7 @@ public class Performer : NetworkBehaviour
 
         if(IsOwner)
         {
-            soundVolume.Value = GameManager.Instance.AudioProcessor.AudioVolume;
+            soundVolume.Value = GameManager.Instance.AudioProcessor.SmoothedAudioVolume;
             soundPitch.Value = GameManager.Instance.AudioProcessor.AudioPitch;
         }
     }
