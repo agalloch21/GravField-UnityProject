@@ -399,11 +399,14 @@ public class EffectSpring : NetworkBehaviour
         ropeStart.localPosition += Vector3.up * shakeYStart;
         ropeEnd.localPosition += Vector3.up * shakeYEnd;
 
-        //ropeStart.forward = direction.normalized;
-        //ropeStart.localEulerAngles = new Vector3(shakeAngleStart, ropeStart.localEulerAngles.y, ropeStart.localEulerAngles.z);
+        //centroidTransform.localPosition += Vector3.up * (shakeYStart);
 
-        //ropeEnd.forward = -direction.normalized;
-        //ropeEnd.localEulerAngles = new Vector3(shakeAngleEnd, ropeEnd.localEulerAngles.y, ropeEnd.localEulerAngles.z);
+
+        ropeStart.forward = direction.normalized;
+        ropeStart.localEulerAngles = new Vector3(shakeAngleStart, ropeStart.localEulerAngles.y, ropeStart.localEulerAngles.z);
+
+        ropeEnd.forward = -direction.normalized;
+        ropeEnd.localEulerAngles = new Vector3(shakeAngleEnd, ropeEnd.localEulerAngles.y, ropeEnd.localEulerAngles.z);
     }
 
     Vector3 ApplyOffset(Transform trans)

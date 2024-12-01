@@ -86,7 +86,7 @@ MonoBehaviour:
     x: -2375
     y: -368
     width: 4635
-    height: 4830
+    height: 4831
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -26772,7 +26772,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: True
+      m_SerializableObject: False
     m_Space: -1
   m_Property:
     name: _vfx_enabled
@@ -26834,7 +26834,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 2.69
+      m_SerializableObject: 5.52
     m_Space: -1
   m_Property:
     name: _Alpha
@@ -26929,7 +26929,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 0.54
+      m_SerializableObject: 1.68
     m_Space: -1
   m_Property:
     name: Frequency
@@ -26967,7 +26967,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEngine.Color, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"r":0.800000011920929,"g":0.800000011920929,"b":0.800000011920929,"a":1.0}'
+      m_SerializableObject: '{"r":0.5,"g":0.5,"b":0.5,"a":1.0}'
     m_Space: -1
   m_Property:
     name: Base Color
@@ -27137,7 +27137,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: UnityEngine.Color, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
-      m_SerializableObject: '{"r":3.0,"g":3.0,"b":3.0,"a":1.0}'
+      m_SerializableObject: '{"r":1.0,"g":1.0,"b":1.0,"a":1.0}'
     m_Space: -1
   m_Property:
     name: Flash Color
@@ -27303,7 +27303,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 0.207
+      m_SerializableObject: 1
     m_Space: -1
   m_Property:
     name: Flash Duration
