@@ -147,10 +147,15 @@ public class PlayerManager : NetworkBehaviour
 
     void EnterSinglePlayerMode()
     {
-        performerList[0].isPerforming.Value = true;
-        performerList[0].clientID.Value = (ulong)0;
+        ApplyPerformer((result, msg)=> {
+            if(result)
+            {
+                performerList[1].isPerforming.Value = true;
+                performerList[1].clientID.Value = (ulong)1;
 
-        ApplyPerformer(null);
+                RefreshPlayerCount();
+            }
+        });
     }
 
     void ExitSinglePlayerMode()

@@ -16,6 +16,8 @@ public class EffectSpringController : NetworkBehaviour
 
     bool effectEnabled = false;
 
+    [SerializeField]
+    public Vector3 springOffset;
 
     void Awake()
     {
@@ -31,7 +33,7 @@ public class EffectSpringController : NetworkBehaviour
 
             EffectSpringGroup spring_group = transform.GetChild(i).GetComponent<EffectSpringGroup>();
             Vector2Int performer_index = GetPerformerIndexOfRope(i);
-            spring_group.InitializeSpringGroup(performerList[performer_index.x], performerList[performer_index.y]);
+            spring_group.InitializeSpringGroup(performerList[performer_index.x], performerList[performer_index.y], springOffset);
 
             springGroupList.Add(spring_group);
         }
@@ -40,6 +42,14 @@ public class EffectSpringController : NetworkBehaviour
     void Start()
     {
 
+    }
+
+    void Update()
+    {
+        foreach(var spring in springGroupList)
+        {
+            spring.springOffset = springOffset;
+        }
     }
 
     void OnEnable()
@@ -123,7 +133,6 @@ public class EffectSpringController : NetworkBehaviour
 
     void SetRopeState(int index, bool state)
     {
-
         springGroupList[index].SetSpringState(state);
 
 

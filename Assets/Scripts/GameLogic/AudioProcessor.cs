@@ -29,8 +29,14 @@ public class AudioProcessor : MonoBehaviour
     float audioVolume;
     public float AudioVolume { get { return audioVolume; } }
 
+    float smoothedAudioVolume = 0;
+    public float dampSpeed = 1;
+    public float SmoothedAudioVolume { get { return smoothedAudioVolume; } }
+
     float audioPitch;
     public float AudioPitch { get { return audioPitch; } }
+
+    public float[] Samples { get { return _samples; } }
 
     [Header("Holokit Recorder")]
 #if UNITY_IOS
@@ -86,8 +92,6 @@ public class AudioProcessor : MonoBehaviour
 
             audioVolume = Remap(level_decimal, -30, 0, 0, 1, true);
             audioPitch = 0;
-            //Debug.Log(string.Format("LevelMax:{0}, Decimal:{1}", level.ToString("0.0000"), level_decimal.ToString("0.000")));
-            //GameManager.Instance.SetInfo("level", level_decimal.ToString("0.000"));
         }
         
 
@@ -98,10 +102,21 @@ public class AudioProcessor : MonoBehaviour
 
             audioVolume = Remap(DbValue, -10, 10, 0, 1, true);
             audioPitch = Remap(PitchValue, 0, 600, 0, 1, true);
-            //GameManager.Instance.SetInfo("db", DbValue.ToString("0.000"));
-            //GameManager.Instance.SetInfo("pitch", PitchValue.ToString("0.000"));
+
+            if (smoothedAudioVolume > audioVolume)
+            {
+                smoothedAudioVolume -= dampSpeed * Time.deltaTime;
+                if (smoothedAudioVolume < audioVolume)
+                    smoothedAudioVolume = audioVolume;
+            }
+            else
+            {
+                smoothedAudioVolume += dampSpeed * Time.deltaTime * 5;
+                if (smoothedAudioVolume > audioVolume)
+                    smoothedAudioVolume = audioVolume;
+            }
         }
-        //GameManager.Instance.SetInfo("FinalVolume", audioVolume.ToString("0.000"));
+
     }
 
 #region Methon One

@@ -2,25 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-
-[System.Serializable]
-public class OscillatingNode
-{
-    public OscillatingNode(float _shakeSpeed, float _shakeSinOffset, float _shakeSinFreq)
-    {
-        shakeSpeed = 10;
-        shakeSinValue = 0;
-        shakeSinOffset = 0;
-        shakeSinFreq = 0.4f;
-        shakeY = 0.01f;
-    }
-    public float shakeSpeed;
-    public float shakeSinValue;
-    public float shakeSinOffset;
-    public float shakeSinFreq;
-    public float shakeY;
-}
-
+using UnityEngine.XR.ARFoundation;
 
 public class EffectSpringGroup : MonoBehaviour
 {
@@ -32,45 +14,93 @@ public class EffectSpringGroup : MonoBehaviour
 
     bool springEnabled = false;
 
-    [SerializeField]
-    OscillatingNode startNode = new OscillatingNode(10, 0, 0.1f);
-    [SerializeField]
-    OscillatingNode endNode = new OscillatingNode(20, 0.1f, 0.1f);
+    [System.Serializable]
+    public class WaveLine
+    {
+        public float shakeSinValue;
 
-    // Effect Parameters
-    [SerializeField] float ropeMass = 42.8f;
-    [SerializeField] float jointMass = 1.17f;
-    [SerializeField] float anchorMass = 100f;
-    [SerializeField] float thickness = 2;
-    [SerializeField] float hingeSpring = 80;
-    [SerializeField] float hingeDamper = 50;
+        public float waveLengthScaler;        
+        public float shakeSpeedScaler;
+        public float shakeStrengthScaler;
 
-    List<EffectSpring> springList = new List<EffectSpring>();
+        public LineRenderer lineRenderer;
+    }
+    List<WaveLine> wavelineList = new List<WaveLine>();
+
+    const int pointCount = 100;
+    List<Vector3> pointList = new List<Vector3>();
+
+    public Vector2 wavelengthScalerRange;
+    public Vector2 shakeSpeedRange;
+    public Vector2 shakeStrengthRange;
+
+    float baseRotateAngle = 0;
+    public Vector2 rotateSpeedRange;
+
+    [HideInInspector]
+    public Vector3 springOffset;
 
     void Awake()
     {
         springIndex = transform.GetSiblingIndex();
+
     }
 
-    public void InitializeSpringGroup(Performer start, Performer end)
+    void Start()
+    {
+        pointList.Clear();
+        for (int i = 0; i < pointCount; i++)
+        {
+            pointList.Add(Vector3.zero);
+        }
+
+        wavelineList.Clear();
+        foreach (Transform child in transform)
+        {
+            wavelineList.Add(CreateNewWaveLine(child));
+        }
+    }
+
+    WaveLine CreateNewWaveLine(Transform trans)
+    {
+        WaveLine waveline = new WaveLine();
+
+        waveline.waveLengthScaler = 1;// Random.Range(0.5f, 2f);
+        waveline.shakeSinValue = 0;
+        waveline.shakeSpeedScaler = 1;// Random.Range(0.7f, 1.4f);
+        waveline.shakeStrengthScaler = 1;// Random.Range(0.7f, 1.4f);
+
+        waveline.lineRenderer = trans.GetComponent<LineRenderer>();
+
+        return waveline;
+    }
+
+    public void InitializeSpringGroup(Performer start, Performer end, Vector3 offset)
     {
         performerStart = start;
         performerEnd = end;
 
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            EffectSpring spring = transform.GetChild(i).GetComponent<EffectSpring>();
-            spring.BindPerformer(start, end);
-            springList.Add(spring);
-        }
+        springOffset = offset;
+
+        //for (int i = 0; i < transform.childCount; i++)
+        //{
+        //    EffectSpring_AlvaNoto spring = transform.GetChild(i).GetComponent<EffectSpring_AlvaNoto>();
+        //    spring.BindPerformer(start, end);
+        //    springList.Add(spring);
+        //}
     }
 
     public void SetSpringState(bool state)
     {
         springEnabled = state;
-        for (int i = 0; i < springList.Count; i++)
+
+        //for (int i = 0; i < springList.Count; i++)
+        //{
+        //    springList[i].SetSpringState(state);
+        //}
+        foreach(var wave in wavelineList)
         {
-            springList[i].SetSpringState(state);
+            wave.lineRenderer.enabled = state;
         }
     }
 
@@ -85,32 +115,70 @@ public class EffectSpringGroup : MonoBehaviour
 
     void UpdateParameter()
     {
-        // Shake
-        startNode.shakeSinValue += Time.deltaTime * startNode.shakeSpeed;
-        float sin_value = Mathf.Sin(startNode.shakeSinValue * startNode.shakeSinFreq + startNode.shakeSinOffset);
-        float shake_y_start = startNode.shakeY * sin_value;
-        float shake_angle_start = sin_value * 90;
+        AudioProcessor audioProcessor = GameManager.Instance.AudioProcessor;
 
-        endNode.shakeSinValue += Time.deltaTime * endNode.shakeSpeed;
-        sin_value = Mathf.Sin(endNode.shakeSinValue * endNode.shakeSinFreq + endNode.shakeSinOffset);
-        float shake_y_end = endNode.shakeY * sin_value;
-        float shake_angle_end = sin_value * 90;
+        Vector3 startPos = performerStart.transform.TransformPoint(springOffset);
+        Vector3 endPos = performerEnd.transform.TransformPoint(springOffset);
 
-        // 
-        for (int i=0; i<springList.Count; i++)
+        float dis = Vector3.Distance(startPos, endPos);
+        Vector3 direction = (endPos - startPos).normalized;
+        Vector3 normal = Vector3.Cross(direction, Vector3.up);
+
+        Quaternion base_rotation = Quaternion.LookRotation(direction, Vector3.up);
+        Vector3 base_angles = base_rotation.eulerAngles;
+
+        // rotate all lines
+        float rotateSpeed = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, rotateSpeedRange.x, rotateSpeedRange.y);
+        baseRotateAngle += Time.deltaTime * rotateSpeed;
+
+        // wave length. we take wave length as 1, then we can use percentage as X
+        float L = 1;
+        float N = 1;
+        float wavelength = 2 * L / N;
+
+        for (int m = 0; m < wavelineList.Count; m++)
         {
-            springList[i].ropeMass = ropeMass;
-            springList[i].jointMass = jointMass;
-            springList[i].anchorMass = anchorMass;
-            springList[i].thickness = thickness;
-            springList[i].hingeSpring = hingeSpring;
-            springList[i].hingeDamper = hingeDamper;
+            WaveLine waveline = wavelineList[m];
 
-            springList[i].shakeYStart = shake_y_start;
-            springList[i].shakeYEnd = shake_y_end;
+            // shake sin value
+            float shake_speed = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, shakeSpeedRange.x, shakeSpeedRange.y) * waveline.shakeSpeedScaler;
+            waveline.shakeSinValue += shake_speed * Time.deltaTime;
 
-            springList[i].shakeAngleStart = shake_angle_start;
-            springList[i].shakeAngleEnd = shake_angle_end;
+            // shake strength
+            float shake_strength = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, shakeStrengthRange.x, shakeStrengthRange.y) * waveline.shakeStrengthScaler;
+
+            // wave length
+            float wavelength_scaler = Utilities.Remap(audioProcessor.AudioVolume, 0, 1, wavelengthScalerRange.x, wavelengthScalerRange.y) * waveline.waveLengthScaler;
+
+            // line rotation
+            float radiate_angle = baseRotateAngle + (float)m / (float)wavelineList.Count * 360;
+            Quaternion rotation = Quaternion.Euler(base_angles.x, base_angles.y, base_angles.z + radiate_angle); 
+            Vector3 line_normal = rotation * normal;
+
+            for (int i = 0; i < pointCount; i++)
+            {
+                float per = (float)i / (float)(pointCount - 1);
+                Vector3 pos_in_line = Vector3.Lerp(startPos, endPos, per);
+                float disA = dis * per;
+                float disB = dis * (1 - per);
+
+
+
+                per = Utilities.Remap(per, 0f, 1f, 0.5f - wavelength_scaler * 0.5f, 0.5f + wavelength_scaler * 0.5f);
+                float amp = shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per - wavelineList[m].shakeSinValue)) + shake_strength * Mathf.Sin(2 * Mathf.PI / wavelength * (per + wavelineList[m].shakeSinValue));
+
+                //int sample_index = Mathf.FloorToInt((float)i / (float)pointCount * (float)audioProcessor.Samples.Length);
+                //amp += audioProcessor.Samples[sample_index] * sampleScaler;
+
+
+                Vector3 point_normal = line_normal;//Quaternion.Euler(per * 360f, 0, 0) * line_normal;
+
+                pointList[i] = pos_in_line + point_normal * amp;
+            }
+
+
+            // draw with line renderer
+            waveline.lineRenderer.SetPositions(pointList.ToArray());
         }
     }
 
