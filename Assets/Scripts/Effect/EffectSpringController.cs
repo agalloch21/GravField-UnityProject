@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class EffectSpringController : NetworkBehaviour
 {
+    public NetworkVariable<float> NV_WavelengthScalerMax = new NetworkVariable<float>(4);
+    public NetworkVariable<float> NV_ShakeSpeedMax = new NetworkVariable<float>(10);
+    public NetworkVariable<float> NV_ShakeStrengthMax = new NetworkVariable<float>(0.3f);
+    public NetworkVariable<float> NV_WaveWidthMax = new NetworkVariable<float>(0.2f);
+    public NetworkVariable<float> NV_RotateSpeedMax = new NetworkVariable<float>(100);
+    public NetworkVariable<float> NV_SpringOffsetY = new NetworkVariable<float>(-0.3f);
+    public NetworkVariable<float> NV_SpringOffsetZ = new NetworkVariable<float>(0.3f);
+
+
     [SerializeField]
     Transform performerTransformRoot;
 
@@ -46,8 +55,19 @@ public class EffectSpringController : NetworkBehaviour
 
     void Update()
     {
+        if (effectEnabled == false)
+            return;
+
         foreach(var spring in springGroupList)
         {
+            spring.wavelengthScalerRange.y = NV_WavelengthScalerMax.Value;
+            spring.shakeSpeedRange.y = NV_ShakeSpeedMax.Value;
+            spring.shakeStrengthRange.y = NV_ShakeStrengthMax.Value;
+            spring.waveWidthRange.y = NV_WaveWidthMax.Value;
+            spring.rotateSpeedRange.y = NV_RotateSpeedMax.Value;
+
+            springOffset.y = NV_SpringOffsetY.Value;
+            springOffset.z = NV_SpringOffsetZ.Value;
             spring.springOffset = springOffset;
         }
     }

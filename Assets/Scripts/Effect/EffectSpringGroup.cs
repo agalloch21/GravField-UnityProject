@@ -162,7 +162,7 @@ public class EffectSpringGroup : MonoBehaviour
             float wavelength_scaler = Utilities.Remap(audioVolume, 0, 1, wavelengthScalerRange.x, wavelengthScalerRange.y) * waveline.waveLengthScaler;
 
             // wave line width
-            float width = Utilities.Remap(dis, 0, 5, waveWidthRange.x, waveWidthRange.y) * 
+            float width = Utilities.Remap(dis, 5, 0, waveWidthRange.x, waveWidthRange.y) * 
                 Utilities.Remap(audioVolume, 0, 1, 0.8f, 1.5f) * waveline.waveWidthScaler;
 
             // line rotation
