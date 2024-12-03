@@ -45,7 +45,7 @@ public class EffectSpringGroup_Old : MonoBehaviour
     [SerializeField] float hingeSpring = 80;
     [SerializeField] float hingeDamper = 50;
 
-    List<EffectSpring> springList = new List<EffectSpring>();
+    List<EffectSpring_Old> springList = new List<EffectSpring_Old>();
 
     void Awake()
     {
@@ -59,7 +59,7 @@ public class EffectSpringGroup_Old : MonoBehaviour
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            EffectSpring spring = transform.GetChild(i).GetComponent<EffectSpring>();
+            EffectSpring_Old spring = transform.GetChild(i).GetComponent<EffectSpring_Old>();
             spring.BindPerformer(start, end);
             springList.Add(spring);
         }

@@ -39,7 +39,7 @@ public class SpringGenerator : RopeGenerator
         EffectSpring spring_path = go.AddComponent<EffectSpring>();
         spring_path.performerStart = performerTransformRoot.GetChild(start_index).GetComponent<Performer>();
         spring_path.performerEnd = performerTransformRoot.GetChild(end_index).GetComponent<Performer>();
-        spring_path.ropeOffset = ropeCornerOffset;
+        spring_path.springOffset = ropeCornerOffset;
     }
     protected override void AddExtraComponent(GameObject go, int start_index, int end_index)
     {
@@ -50,7 +50,8 @@ public class SpringGenerator : RopeGenerator
 
         SplineMeshTiling meshTilling = go.AddComponent<SplineMeshTiling>();
         meshTilling.mesh = ropeMesh;
-        meshTilling.material = ropeMat;
+        Material new_mat_to_prevent_using_the_same = new Material(ropeMat);
+        meshTilling.material = new_mat_to_prevent_using_the_same;
         meshTilling.rotation = new Vector3(0, 0, 0);
         meshTilling.scale = Vector3.one * 0.1f;
 
@@ -65,6 +66,8 @@ public class SpringGenerator : RopeGenerator
         //line_renderer.startWidth = 0.01f;
         //line_renderer.endWidth = 0.01f;
         //line_renderer.enabled = false;
+
+
     }
 
     protected override void DoExtraSettings(GameObject go, int start_index, int end_index)

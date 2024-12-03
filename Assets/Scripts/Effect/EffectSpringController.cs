@@ -58,17 +58,20 @@ public class EffectSpringController : NetworkBehaviour
         if (effectEnabled == false)
             return;
 
-        foreach(var spring in springGroupList)
+        foreach(var spring_group in springGroupList)
         {
-            spring.wavelengthScalerRange.y = NV_WavelengthScalerMax.Value;
-            spring.shakeSpeedRange.y = NV_ShakeSpeedMax.Value;
-            spring.shakeStrengthRange.y = NV_ShakeStrengthMax.Value;
-            spring.waveWidthRange.y = NV_WaveWidthMax.Value;
-            spring.rotateSpeedRange.y = NV_RotateSpeedMax.Value;
+            foreach (var spring in spring_group.springList)
+            {
+                spring.wavelengthScalerRange.y = NV_WavelengthScalerMax.Value;
+                spring.shakeSpeedRange.y = NV_ShakeSpeedMax.Value;
+                spring.shakeStrengthRange.y = NV_ShakeStrengthMax.Value;
+                spring.waveWidthRange.y = NV_WaveWidthMax.Value;
+                spring.rotateSpeedRange.y = NV_RotateSpeedMax.Value;
 
-            springOffset.y = NV_SpringOffsetY.Value;
-            springOffset.z = NV_SpringOffsetZ.Value;
-            spring.springOffset = springOffset;
+                springOffset.y = NV_SpringOffsetY.Value;
+                springOffset.z = NV_SpringOffsetZ.Value;
+                spring.springOffset = springOffset;
+            }  
         }
     }
 
