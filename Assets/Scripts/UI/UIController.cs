@@ -320,7 +320,7 @@ public class UIController : MonoBehaviour
         else
         {
             GameManager.Instance.ConnectionManager.ServerIP = server_ip;
-            GotoPage("Page_JoinType");
+            GotoPage("Page_Home");
         }
     }
 #endregion
